@@ -1,8 +1,8 @@
 import logging
-logger = logging.getLogger(__name__)
 import json
 import requests
 
+logger = logging.getLogger(__name__)
 
 API_VERSION = 'v32.0'
 BULK_JOB_API_VERSION = '36.0'   # not sure why this one doesn't require the leading 'v'
@@ -265,13 +265,17 @@ class SFDC(object):
             'status_code': r.status_code
         }
 
-    def query_cursor(self, query):
-        url = '/services/data/{}/query'.format(API_VERSION)
+    def query_cursor(self, query, include_deleted=False):
+        query_type = 'queryAll' if include_deleted else 'query'
+
+        url = '/services/data/{}/{}'.format(API_VERSION, query_type)
         r = self.get_cursor(url=url, payload=dict(q=query))
         return r
 
-    def query(self, query):
-        url = '/services/data/{}/query'.format(API_VERSION)
+    def query(self, query, include_deleted=False):
+        query_type = 'queryAll' if include_deleted else 'query'
+
+        url = '/services/data/{}/{}'.format(API_VERSION, query_type)
         r = self.get(url=url, payload=dict(q=query))
 
         return r
@@ -292,4 +296,3 @@ class SFDC(object):
         job = BulkJob(operation, object, content_type, instance_url=self._instance_url, access_token=self._access_token)
         job.create()
         return job
-
